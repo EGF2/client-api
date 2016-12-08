@@ -1,0 +1,8 @@
+{
+  "port": 2019,
+  "auth": "http://localhost:2016",
+  "client-data": "http://localhost:8000",
+  "elastic": {
+    "hosts": ["localhost:9200"]
+  }
+}
