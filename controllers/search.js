@@ -58,7 +58,7 @@ function options(req) {
     let sort = req.query.sort ? req.query.sort.split(",") : undefined;
 
     // set after parameter
-    let after = parseInt(req.query.after, 10);
+    let after = (parseInt(req.query.after, 10) + 1) || 0;
 
     // set page size
     let countPromise = clientData.getGraphConfig().then(graph => {
@@ -91,7 +91,7 @@ function Search(req, res, next) {
                         page = {
                             results: (page.first && page.count && page.results) ? page.results : [page],
                             count: found.count,
-                            first: (opt.after + 1) || 1
+                            first: opt.after || 0
                         };
                         if (page.count > page.first) {
                             page.last = String(page.first + page.results.length - 1);
