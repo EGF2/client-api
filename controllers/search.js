@@ -4,6 +4,7 @@ const clientData = require("../components").clientData;
 const searcher = require("../components").searcher;
 const errors = require("./errors");
 const expand = require("./expand");
+const acl = require("../acl");
 
 function parseFilters(filters) {
     let res = {};
@@ -86,20 +87,31 @@ function Search(req, res, next) {
                         count: found.count
                     };
                 }
-                return clientData.getObjects.apply(null, found.results)
-                    .then(page => {
-                        page = {
-                            results: (page.first && page.count && page.results) ? page.results : [page],
-                            count: found.count,
-                            first: opt.after || 0
-                        };
-                        if (page.count > page.first) {
-                            page.last = String(page.first + page.results.length - 1);
+
+                // check ACLs
+                return Promise.all(found.results.map(id => {
+                    return acl.checkAccessPromise({
+                        method: "GET",
+                        user: req.user,
+                        params: {id}
+                    }).then(ok => {
+                        if (!ok) {
+                            throw new errors.AccessForbidden();
                         }
-                        page.first = String(page.first);
-                        return Promise.all(page.results.map(obj => expand(obj, req.user, req.params.expand)))
-                            .then(() => page);
                     });
+                })).then(() => clientData.getObjects.apply(null, found.results).then(page => {
+                    page = {
+                        results: (page.first && page.count && page.results) ? page.results : [page],
+                        count: found.count,
+                        first: opt.after || 0
+                    };
+                    if (page.count > page.first) {
+                        page.last = String(page.first + page.results.length - 1);
+                    }
+                    page.first = String(page.first);
+                    return Promise.all(page.results.map(obj => expand(obj, req.user, req.params.expand)))
+                        .then(() => page);
+                }));
             })
         )
         .then(page => res.send(page))

@@ -10,6 +10,9 @@ const errors = require("../controllers/errors");
   * Allow public access
   */
 function allowPublicAccess(req) { // if one of rules has public access for GET requests only
+    if (req.path() === "/v1/search") { // allow public access for search endpoint
+        return Promise.resolve(true);
+    }
     return getConfig(req).then(cfg =>
         cfg[req.method].split(",").some(rule => rule.startsWith("any"))
     );
