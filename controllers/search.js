@@ -1,5 +1,7 @@
 "use strict";
 
+/* eslint max-nested-callbacks: ["error", 5] */
+
 const clientData = require("../components").clientData;
 const searcher = require("../components").searcher;
 const errors = require("./errors");
