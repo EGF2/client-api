@@ -72,6 +72,7 @@ function options(req) {
         if (isNaN(count) || count < 0 || count > graph.pagination.max_count) {
             throw new errors.IncorrectCountParameter(graph.pagination.max_count);
         }
+        return count;
     });
 
     return countPromise.then(count => {
