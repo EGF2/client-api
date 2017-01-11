@@ -19,14 +19,14 @@ function getObject(req, res, next) {
 }
 
 function createObject(req, res, next) {
-    extra(req).then(result => result || clientData.createObject(req.body))
+    extra(req).then(result => result || clientData.createObject(req.body, req.user))
     .then(obj => res.send(obj))
     .catch(next);
 }
 
 function updateObject(req, res, next) {
     extra(req).then(result => result ||
-        clientData.updateObject(req.params.id, req.body)
+        clientData.updateObject(req.params.id, req.body, req.user)
     )
     .then(obj => res.send(obj))
     .catch(next);
@@ -34,7 +34,7 @@ function updateObject(req, res, next) {
 
 function deleteObject(req, res, next) {
     extra(req).then(result => result ||
-        clientData.deleteObject(req.params.id)
+        clientData.deleteObject(req.params.id, req.user)
     )
     .then(objectDeleted => res.send(objectDeleted))
     .catch(next);

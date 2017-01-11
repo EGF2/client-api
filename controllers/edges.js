@@ -6,7 +6,7 @@ const expand = require("./expand");
 
 function createEdge(req, res, next) {
     extra(req).then(result => result ||
-        clientData.createEdge(req.params.src, req.params.edge_name, req.params.dst)
+        clientData.createEdge(req.params.src, req.params.edge_name, req.params.dst, req.user)
     )
     .then(edgeCreated => res.send(edgeCreated))
     .catch(next);
@@ -14,8 +14,8 @@ function createEdge(req, res, next) {
 
 function createEdgeAndObject(req, res, next) {
     extra(req).then(result => result ||
-        clientData.createObject(req.body).then(obj =>
-            clientData.createEdge(req.params.src, req.params.edge_name, obj.id).then(() => obj)
+        clientData.createObject(req.body, req.user).then(obj =>
+            clientData.createEdge(req.params.src, req.params.edge_name, obj.id, req.user).then(() => obj)
         )
     )
     .then(obj => res.send(obj))
@@ -24,7 +24,7 @@ function createEdgeAndObject(req, res, next) {
 
 function deleteEdge(req, res, next) {
     extra(req).then(result => result ||
-        clientData.deleteEdge(req.params.src, req.params.edge_name, req.params.dst)
+        clientData.deleteEdge(req.params.src, req.params.edge_name, req.params.dst, req.user)
     )
     .then(edgeDeleted => res.send(edgeDeleted))
     .catch(next);
