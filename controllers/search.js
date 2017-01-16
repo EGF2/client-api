@@ -61,7 +61,7 @@ function options(req) {
     let sort = req.query.sort ? req.query.sort.split(",") : undefined;
 
     // set after parameter
-    let after = (parseInt(req.query.after, 10) + 1) || 0;
+    let after = req.query.after;
 
     // set page size
     let countPromise = clientData.getGraphConfig().then(graph => {
@@ -83,16 +83,13 @@ function options(req) {
 function Search(req, res, next) {
     try {
         options(req).then(opt => searcher.search(opt)
-            .then(found => {
-                if (!found.results.length) {
-                    return {
-                        results: [],
-                        count: found.count
-                    };
+            .then(page => {
+                if (page.results.length === 0) {
+                    return page;
                 }
 
                 // check ACLs
-                return Promise.all(found.results.map(id => {
+                return Promise.all(page.results.map(id => {
                     return acl.checkAccessPromise({
                         method: "GET",
                         user: req.user,
@@ -102,16 +99,9 @@ function Search(req, res, next) {
                             throw new errors.AccessForbidden();
                         }
                     });
-                })).then(() => clientData.getObjects.apply(null, found.results).then(page => {
-                    page = {
-                        results: (page.first && page.count && page.results) ? page.results : [page],
-                        count: found.count,
-                        first: opt.after || 0
-                    };
-                    if (page.count > page.first) {
-                        page.last = String(page.first + page.results.length - 1);
-                    }
-                    page.first = String(page.first);
+                }))
+                .then(() => clientData.getObjects.apply(null, page.results).then(objects => {
+                    page.results = page.results.length === 1 ? [objects] : objects.results;
                     return Promise.all(page.results.map(obj => expand(obj, req.user, req.params.expand)))
                         .then(() => page);
                 }));
