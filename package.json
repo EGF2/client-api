@@ -6,6 +6,7 @@
     "bunyan": "^1.5.1",
     "co": "^4.6.0",
     "commons": "git+https://github.com/EGF2/commons.git",
+    "dotenv": "^5.0.0",
     "restify": "^4.0.3",
     "xss": "^0.2.13"
   },
