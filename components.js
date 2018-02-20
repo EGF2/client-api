@@ -3,7 +3,6 @@
 const option = require("commons/option");
 const search = require("commons/search");
 const bunyan = require("bunyan");
-require("dotenv").config();
 
 function init() {
     return option().config.then(config => {
