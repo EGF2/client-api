@@ -51,6 +51,10 @@ function sanitize(req, res, next) {
     next();
 }
 
+function getHealthcheck() {
+    return (req, res) => res.send(200);
+}
+
 /**
   * Create server
   */
@@ -64,6 +68,9 @@ function createServer() {
         mapParams: false
     }));
     server.use(auth.handler(config.auth, acl.allowPublicAccess));
+
+    // Healthcheck
+    server.get("/healthcheck", getHealthcheck());
 
     // Search API
     server.get("/v1/search", search.Search);
